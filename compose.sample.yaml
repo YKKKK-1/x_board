@@ -1,6 +1,9 @@
 services:
   web:
-    image: ghcr.io/cedar2025/xboard:new
+    image: xboard:local
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - redis-data:/data
       - ./:/www/
@@ -12,7 +15,10 @@ services:
     command: php artisan octane:start --port=7001 --host=0.0.0.0
     restart: always
   horizon:
-    image: ghcr.io/cedar2025/xboard:new
+    image: xboard:local
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - redis-data:/data
       - ./:/www/
@@ -22,7 +28,10 @@ services:
     depends_on:
       - redis
   ws-server:
-    image: ghcr.io/cedar2025/xboard:new
+    image: xboard:local
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - redis-data:/data
       - ./:/www/
