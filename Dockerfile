@@ -2,7 +2,7 @@ FROM phpswoole/swoole:php8.2-alpine
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 
-# Install PHP extensions one by one with lower optimization level for ARM64 compatibility
+# 安装扩展和依赖
 RUN CFLAGS="-O0" install-php-extensions pcntl && \
     CFLAGS="-O0 -g0" install-php-extensions bcmath && \
     install-php-extensions zip && \
@@ -14,34 +14,25 @@ RUN CFLAGS="-O0" install-php-extensions pcntl && \
 
 WORKDIR /www
 
-COPY .docker /
+COPY . /www
 
-# Add build arguments
-ARG CACHEBUST
-ARG REPO_URL
-ARG BRANCH_NAME
-
-RUN echo "Attempting to clone branch: ${BRANCH_NAME} from ${REPO_URL} with CACHEBUST: ${CACHEBUST}" && \
-    rm -rf ./* && \
-    rm -rf .git && \
-    git config --global --add safe.directory /www && \
-    git clone --depth 1 --branch ${BRANCH_NAME} ${REPO_URL} . && \
-    git submodule update --init --recursive --force
-
+# 拷贝 supervisor 配置
 COPY .docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-RUN composer install --no-cache --no-dev \
+# 安装依赖
+RUN composer install --no-cache --no-dev --no-scripts \
     && php artisan storage:link \
     && cp -r plugins/ /opt/default-plugins/ \
     && chown -R www:www /www \
     && chmod -R 775 /www \
     && mkdir -p /data \
     && chown redis:redis /data
-    
+
 ENV ENABLE_WEB=true \
     ENABLE_HORIZON=true \
     ENABLE_REDIS=false \
     ENABLE_WS_SERVER=false
 
 EXPOSE 7001
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"] 
+
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
