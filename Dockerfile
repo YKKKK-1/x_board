@@ -31,11 +31,6 @@ COPY .docker /
 # 你的源码
 COPY . /www
 
-# 上游新增的 build 参数
-ARG CACHEBUST=1
-ARG REPO_URL=https://github.com/cedar2025/Xboard
-ARG BRANCH_NAME=master
-
 # supervisor / caddy / php 配置
 COPY .docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY .docker/caddy/Caddyfile /etc/caddy/Caddyfile
