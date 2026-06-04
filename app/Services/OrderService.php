@@ -349,10 +349,7 @@ class OrderService
         if ($this->user->expired_at === NULL || $order->type === Order::TYPE_NEW_PURCHASE)
             app(TrafficResetService::class)->performReset($this->user, TrafficResetLog::SOURCE_ORDER);
         $this->user->plan_id = $plan->id;
-        // 仅当用户当前未设置分组时，才跟随套餐分组
-        if (!$this->user->group_id) {
-            $this->user->group_id = $plan->group_id;
-        }
+        $this->user->group_id = $plan->group_id;
         $this->user->expired_at = $this->getTime($order->period, $this->user->expired_at);
     }
 
@@ -361,10 +358,7 @@ class OrderService
         app(TrafficResetService::class)->performReset($this->user, TrafficResetLog::SOURCE_ORDER);
         $this->user->transfer_enable = $plan->transfer_enable * 1073741824;
         $this->user->plan_id = $plan->id;
-        // 仅当用户当前未设置分组时，才跟随套餐分组
-        if (!$this->user->group_id) {
-            $this->user->group_id = $plan->group_id;
-        }
+        $this->user->group_id = $plan->group_id;
         $this->user->expired_at = NULL;
     }
 

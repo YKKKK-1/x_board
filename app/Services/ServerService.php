@@ -74,6 +74,9 @@ class ServerService
             } else {
                 $server->port = (int) $server->port;
             }
+            if (is_string($server->host) && str_contains($server->host, '$uuid')) {
+                $server->host = str_replace('$uuid', $user->uuid, $server->host);
+            }
             $server->password = $server->generateServerPassword($user);
             $server->rate = $server->getCurrentRate();
             return $server;
